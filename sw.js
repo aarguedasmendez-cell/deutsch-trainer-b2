@@ -1,4 +1,4 @@
-const CACHE = 'deutsch-trainer-b2-v2';
+const CACHE = 'deutsch-trainer-b2-v5';
 const ASSETS = ['./','./index.html','./styles.css','./app.js','./manifest.webmanifest','./icon-192.png','./icon-512.png'];
 self.addEventListener('install', event => {
   event.waitUntil(caches.open(CACHE).then(cache => cache.addAll(ASSETS)).then(() => self.skipWaiting()));

@@ -1,0 +1,33 @@
+<!doctype html>
+<html lang="es">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+  <meta name="theme-color" content="#17294b">
+  <meta name="description" content="Entrenadores de alemán B1–B2+ que funcionan sin conexión.">
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-status-bar-style" content="default">
+  <meta name="apple-mobile-web-app-title" content="Deutsch B2+">
+  <link rel="manifest" href="./manifest.webmanifest">
+  <link rel="icon" type="image/png" href="./icon-192.png">
+  <link rel="apple-touch-icon" href="./icon-192.png">
+  <link rel="stylesheet" href="./styles.css">
+  <title>Deutsch Trainer B2+</title>
+</head>
+<body>
+  <div id="app" class="app-shell">
+    <header class="topbar">
+      <button id="brand" class="brand" type="button" aria-label="Ir al inicio"><span class="brand-mark">D<span>+</span></span><span><strong>Deutsch Trainer</strong><small>Tu alemán, a tu ritmo</small></span></button>
+      <div class="status"><span id="connectionDot" class="dot"></span><span id="connectionLabel">Comprobando…</span></div>
+    </header>
+    <main id="main" tabindex="-1"></main>
+    <nav class="bottom-nav" aria-label="Navegación principal">
+      <button type="button" data-nav="home" class="nav-btn active"><span aria-hidden="true">⌂</span><small>Inicio</small></button>
+      <button type="button" data-nav="practice" class="nav-btn"><span aria-hidden="true">✎</span><small>Practicar</small></button>
+      <button type="button" data-nav="words" class="nav-btn"><span aria-hidden="true">▤</span><small>Palabras</small></button>
+      <button type="button" data-nav="progress" class="nav-btn"><span aria-hidden="true">◫</span><small>Progreso</small></button>
+    </nav>
+  </div>
+  <script src="./app.js" defer></script>
+</body>
+</html>

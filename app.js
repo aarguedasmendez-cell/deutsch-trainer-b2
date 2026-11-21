@@ -1,5 +1,5 @@
 'use strict';
-/* Deutsch Trainer B2+ — versión 0.1: sin dependencias ni servicios externos. */
+/* Deutsch Trainer B2+ — versión 0.2: sin dependencias ni servicios externos. */
 const STORAGE_KEY='deutsch_trainer_b2_v1';
 const PRONOUNS=['ich','du','er / sie / es','wir','ihr','sie / Sie'];
 const CASES=[['Nom','Nominativ'],['Akk','Akkusativ'],['Dat','Dativ'],['Gen','Genitiv']];
@@ -65,10 +65,12 @@ function checkedFor(item){return state.lastChecks[qid(item)]||null;}
 function moduleCount(){return Object.keys(MODULES).reduce((a,k)=>a+itemBank(k).length,0);}
 function accuracy(){const total=state.history.reduce((n,r)=>n+(r.total||0),0);const right=state.history.reduce((n,r)=>n+(r.correct||0),0);return total?Math.round(right/total*100):0;}
 function feedbackHTML(key,expected,check){if(!check)return '';const match=check.fields?.[key];if(match)return '<div class="feedback good">✓ Correcto</div>';return `<div class="feedback bad">✕ Revisa esta respuesta.<span class="correct-text">Respuesta: ${html(expected)}</span></div>`;}
+/* Cada campo incluye un botón de avance apto para teclado táctil de iPad. */
+function nextFieldButton(key,check){return check?'':`<button type="button" class="field-next" data-focus-next="${html(key)}" aria-label="Ir a la siguiente casilla" title="Siguiente casilla">→</button>`;}
 function optionsField(key, label, options, answer, item, check){let val=draftFor(item)[key]??'';let cls=check?(check.fields?.[key]?' correct':' error'):'';
- return `<div class="field"><label for="f_${html(key)}">${html(label)}</label><select id="f_${html(key)}" class="select-answer${cls}" data-key="${html(key)}" ${check?'disabled':''}><option value="">Selecciona...</option>${options.map(x=>`<option value="${html(x)}" ${x===val?'selected':''}>${html(x)}</option>`).join('')}</select>${feedbackHTML(key,answer,check)}</div>`;}
+ return `<div class="field"><label for="f_${html(key)}">${html(label)}</label><div class="answer-entry"><select id="f_${html(key)}" class="select-answer${cls}" data-key="${html(key)}" ${check?'disabled':''}><option value="">Selecciona...</option>${options.map(x=>`<option value="${html(x)}" ${x===val?'selected':''}>${html(x)}</option>`).join('')}</select>${nextFieldButton(key,check)}</div>${feedbackHTML(key,answer,check)}</div>`;}
 function textField(key,label,answer,item,check,placeholder='Escribe tu respuesta'){let val=draftFor(item)[key]??'';let cls=check?(check.fields?.[key]?' correct':' error'):'';
- return `<div class="field"><label for="f_${html(key)}">${html(label)}</label><input id="f_${html(key)}" class="answer${cls}" type="text" autocapitalize="off" autocomplete="off" spellcheck="false" data-key="${html(key)}" value="${html(val)}" placeholder="${html(placeholder)}" ${check?'readonly':''}>${feedbackHTML(key,answer,check)}</div>`;}
+ return `<div class="field"><label for="f_${html(key)}">${html(label)}</label><div class="answer-entry"><input id="f_${html(key)}" class="answer${cls}" type="text" autocapitalize="off" autocomplete="off" autocorrect="off" enterkeyhint="next" spellcheck="false" data-key="${html(key)}" value="${html(val)}" placeholder="${html(placeholder)}" ${check?'readonly':''}>${nextFieldButton(key,check)}</div>${feedbackHTML(key,answer,check)}</div>`;}
 function nounForm(item,caseKey,group){const g=item.gender;const sg=item.singular;const base=(caseKey==='Gen')?item.genitive:sg;const pl=(caseKey==='Dat')?item.dativePlural:item.plural;
  const art={
  def:{m:{Nom:'der',Akk:'den',Dat:'dem',Gen:'des'},f:{Nom:'die',Akk:'die',Dat:'der',Gen:'der'},n:{Nom:'das',Akk:'das',Dat:'dem',Gen:'des'}},
@@ -110,11 +112,11 @@ function renderNav(){document.querySelectorAll('[data-nav]').forEach(b=>{const o
 function render(){renderNav(); if(view==='home')return renderHome();if(view==='practice')return currentModule?renderQuestion():renderModules();if(view==='words')return renderWords();if(view==='progress')return renderProgress();}
 function renderHome(){const s=accuracy(),tries=state.history.length;
  main.innerHTML=`<section class="hero"><span class="eyebrow">DEUTSCH TRAINER · B1–B2+</span><h1>Un poco de alemán.<br>Todos los días.</h1><p>Practica con palabras de tus consultas, aprende de tus errores y continúa sin internet después de instalar la aplicación.</p><button class="btn primary-light" data-action="open-modules">Empezar a practicar <span>↗</span></button></section>
- <div class="section-heading"><div><h2>Tu espacio de estudio</h2><p>Elige qué quieres reforzar hoy</p></div><span class="pill warm">Versión inicial</span></div><div class="modules">${moduleCards()}</div>
+ <div class="section-heading"><div><h2>Tu espacio de estudio</h2><p>Elige qué quieres reforzar hoy</p></div><span class="pill warm">Versión 0.2</span></div><div class="modules">${moduleCards()}</div>
  <div class="section-heading"><div><h2>Tu progreso</h2><p>Los datos se guardan en este dispositivo</p></div></div>
  <div class="stat-grid"><div class="stat"><strong>${moduleCount()}</strong><small>Ejercicios disponibles</small></div><div class="stat"><strong>${tries}</strong><small>Fichas corregidas</small></div><div class="stat"><strong>${s}%</strong><small>Respuestas correctas</small></div></div>
  <div class="card" style="margin-top:16px"><strong>Tu biblioteca crece contigo</strong><p class="muted-sm">Puedes añadir palabras pendientes y cargar archivos JSON de vocabulario preparado en ChatGPT. No se recopilan datos en un servidor.</p><button class="btn secondary small" data-action="words">Abrir mi vocabulario</button></div>
- <p class="app-version">Deutsch Trainer B2+ · v0.1 · Funciona offline tras su primera instalación online</p>`;
+ <p class="app-version">Deutsch Trainer B2+ · v0.2 · Funciona offline tras su primera instalación online</p>`;
 }
 function moduleCards(){return Object.entries(MODULES).map(([k,m])=>`<button type="button" class="module" data-module="${k}"><div class="module-icon">${m.icon}</div><div><h3>${m.label}</h3><p>${m.description}</p></div><span class="pill">${itemBank(k).length} fichas</span></button>`).join('');}
 function renderModules(){main.innerHTML=`<h1 class="page-title">Elige tu entrenador</h1><p class="page-subtitle">No verás las soluciones hasta pulsar «Comprobar respuestas». Puedes cambiar de pantalla sin perder lo que escribes.</p><div class="modules">${moduleCards()}</div>`;}
@@ -134,6 +136,7 @@ function renderQuestion(){const item=currentItem(currentModule);if(!item){main.i
  main.innerHTML=`<div class="practice-head"><button class="btn ghost small" data-action="open-modules">‹ Todos los entrenadores</button><div class="progress-track" aria-label="Posición en la lista"><div class="progress-fill" style="width:${Math.round((index+1)/list.length*100)}%"></div></div><span class="muted-sm">${index+1} de ${list.length}</span></div>
  <div class="card"><div class="row between"><span class="pill">${MODULES[currentModule].label}</span><span class="muted-sm">${html(item.source||'Mi biblioteca')}</span></div>
  <h1 class="problem-title">${html(item.es)}</h1><p class="problem-desc">${item.type==='noun'?'Completa las declinaciones con el adjetivo en alemán. Incluye el plural.':item.type==='verb'?'Completa el verbo entero. Incluye los pronombres reflexivos cuando corresponda.':item.type==='connector'?'Escribe el conector adecuado para que la oración tenga sentido.':'Completa la preposición fija del verbo y su caso.'}</p>
+ ${check?'':`<div class="keyboard-tip">Pulsa <strong>Tab</strong> o <strong>Intro</strong> para avanzar. Si usas el teclado en pantalla, toca <strong>→</strong> junto a la casilla.</div>`}
  ${content}
  ${check?`<div class="score"><h3>${check.correct} de ${check.total} respuestas correctas (${Math.round(check.correct/check.total*100)}%)</h3><p>${item.kind?html(item.kind):'Los errores están en rojo y sus soluciones aparecen bajo cada campo.'}${item.example?' Ejemplo: '+html(item.example):''}</p></div>`:''}
  <div class="toolbar">${check?'<button class="btn secondary" data-action="retry">Intentar de nuevo</button>':'<button class="btn" data-action="check">Comprobar respuestas</button>'}<button class="btn ${check?'':'secondary'}" data-action="next">Siguiente ejercicio →</button></div></div>
@@ -181,7 +184,25 @@ document.addEventListener('input',ev=>{
 });
 document.addEventListener('change',ev=>{if(ev.target.dataset.key&&currentModule){const item=currentItem(currentModule);if(item){const key=qid(item);state.drafts[key]??={};state.drafts[key][ev.target.dataset.key]=ev.target.value;save();}}if(ev.target.id==='fileImport')importFile(ev.target.files?.[0]);});
 document.addEventListener('submit',ev=>{if(ev.target.id==='addWord'){ev.preventDefault();const fd=new FormData(ev.target);const de=String(fd.get('de')||'').trim();const es=String(fd.get('es')||'').trim();if(!de||!es)return;addRecords([{type:'pending',de,es,source:'Anotada por mí'}]);}});
-document.addEventListener('click',ev=>{const nav=ev.target.closest('[data-nav]');if(nav){setView(nav.dataset.nav);return;}if(ev.target.closest('#brand')){setView('home');return;}const mod=ev.target.closest('[data-module]');if(mod){setView('practice',mod.dataset.module);return;}const rm=ev.target.closest('[data-remove]');if(rm){const id=rm.dataset.remove;const item=state.bank.find(i=>i.id===id);if(item?.type==='pending'&&confirm(`¿Eliminar ${item.de} de tus palabras pendientes?`)){state.bank=state.bank.filter(i=>i.id!==id);save();renderWords();}return;}const a=ev.target.closest('[data-action]');if(!a)return;switch(a.dataset.action){case 'open-modules':setView('practice');break;case 'words':setView('words');break;case 'check':handleCheck();break;case 'next':nextQuestion();break;case 'retry':retryQuestion();break;case 'export':exportData();break;}});
+/* Navegación fiable: Tab, Mayús+Tab, Intro y botones →. Nunca se redibuja mientras escribes. */
+function focusAdjacentField(origin, direction){
+ const fields=Array.from(main.querySelectorAll('input[data-key]:not([readonly]):not([disabled]),select[data-key]:not([disabled])'));
+ const index=fields.indexOf(origin);
+ if(index<0)return false;
+ const target=fields[index+direction];
+ if(target){target.focus();target.scrollIntoView({block:'nearest'});return true;}
+ if(direction===1){const checkBtn=main.querySelector('[data-action="check"]');if(checkBtn){checkBtn.focus();checkBtn.scrollIntoView({block:'nearest'});return true;}}
+ return false;
+}
+document.addEventListener('keydown',ev=>{
+ if(!currentModule||!ev.target.matches('input[data-key],select[data-key]')||ev.isComposing)return;
+ if(ev.key==='Tab'){
+  if(focusAdjacentField(ev.target,ev.shiftKey?-1:1))ev.preventDefault();
+ }else if(ev.key==='Enter'&&ev.target.matches('input[data-key]')){
+  if(focusAdjacentField(ev.target,1))ev.preventDefault();
+ }
+});
+document.addEventListener('click',ev=>{const advance=ev.target.closest('[data-focus-next]');if(advance){const origin=Array.from(main.querySelectorAll('[data-key]')).find(field=>field.dataset.key===advance.dataset.focusNext);if(origin)focusAdjacentField(origin,1);return;}const nav=ev.target.closest('[data-nav]');if(nav){setView(nav.dataset.nav);return;}if(ev.target.closest('#brand')){setView('home');return;}const mod=ev.target.closest('[data-module]');if(mod){setView('practice',mod.dataset.module);return;}const rm=ev.target.closest('[data-remove]');if(rm){const id=rm.dataset.remove;const item=state.bank.find(i=>i.id===id);if(item?.type==='pending'&&confirm(`¿Eliminar ${item.de} de tus palabras pendientes?`)){state.bank=state.bank.filter(i=>i.id!==id);save();renderWords();}return;}const a=ev.target.closest('[data-action]');if(!a)return;switch(a.dataset.action){case 'open-modules':setView('practice');break;case 'words':setView('words');break;case 'check':handleCheck();break;case 'next':nextQuestion();break;case 'retry':retryQuestion();break;case 'export':exportData();break;}});
 window.addEventListener('online',updateStatus);window.addEventListener('offline',updateStatus);
 updateStatus();render();
 if('serviceWorker' in navigator&&location.protocol==='https:'||('serviceWorker' in navigator&&location.hostname==='localhost')){
